@@ -1,26 +1,26 @@
-name: Disparar WhatsApp
+name: Disparo WhatsApp via Celular
 
 on:
   push:
-    branches:
-      - main  # Dispara toda vez que você der "Push" (salvar) no GitHub
+    paths:
+      - 'trigger.txt' # O fluxo só roda quando você editar este arquivo específico
 
 jobs:
-  build:
+  run_script:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Configurar Python
-        uses: actions/setup-python@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Instalar dependências
-        run: pip install requests pandas
+      - name: Install Dependencies
+        run: pip install gspread google-auth requests pandas
 
-      - name: Executar Script de Envio
-        run: python main.py
+      - name: Run Disparo
         env:
-          API_KEY: ${{ secrets.EVOLUTION_API_KEY }} # Guarde sua chave nos Secrets do GitHub
+          EVOLUTION_API_KEY: ${{ secrets.EVOLUTION_API_KEY }}
+        run: python main.py
