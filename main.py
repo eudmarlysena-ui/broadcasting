@@ -4,7 +4,7 @@ import time
 
 # Configurações da Evolution API
 API_URL = "https://seu-host.com/message/sendText/WhatsappBroadcast"
-API_KEY = "SUA_API_KEY_AQUI"
+API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMmEwY2UzMC1kNjM4LTQ4MGItOGE5Ni01NzhlZmZjNzU5NzUiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzc0Nzk5MDI5fQ.QVuPvp5AoWdKrYOTTFRXEG9D_rVysBgTyTUYsnMTDDs"
 
 # 1. Carregar dados (Exemplo usando CSV ou Excel do GitHub)
 # Para usar Google Sheets direto no Python, recomendo a lib 'gspread'
