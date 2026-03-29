@@ -1,3 +1,3 @@
 # broadcasting
 WhatsappBroadcating
-Itulizado para enviar mensagens a vários números da equipe.
+Utlizado para enviar mensagens a vários números de teledones que compõem uma equipe.
