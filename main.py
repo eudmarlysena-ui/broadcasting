@@ -1,40 +1,32 @@
+import gspread
+from google.oauth2.service_account import Credentials
 import requests
-import pandas as pd
-import time
+import os
 
-# Configurações da Evolution API
-API_URL = "https://seu-host.com/message/sendText/WhatsappBroadcast"
-API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMmEwY2UzMC1kNjM4LTQ4MGItOGE5Ni01NzhlZmZjNzU5NzUiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzc0Nzk5MDI5fQ.QVuPvp5AoWdKrYOTTFRXEG9D_rVysBgTyTUYsnMTDDs"
+# Autenticação
+scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
+client = gspread.authorize(creds)
 
-# 1. Carregar dados (Exemplo usando CSV ou Excel do GitHub)
-# Para usar Google Sheets direto no Python, recomendo a lib 'gspread'
-df_contatos = pd.read_csv('contatos.csv') 
-mensagem_base = "Olá {{nome}}, esta é uma mensagem via Python!"
+# Abre a planilha
+sheet = client.open("BroadcastWhatsapp").get_worksheet(0)
 
-def enviar_mensagem(numero, texto):
-    payload = {
-        "number": str(numero),
-        "text": texto,
-        "delay": 1200,
-        "linkPreview": True
-    }
-    headers = {'apikey': API_KEY, 'Content-Type': 'application/json'}
+# Pega a mensagem (A2) e os contatos (B2 em diante)
+mensagem_base = sheet.acell('A2').value
+contatos = sheet.get_all_records() # Ele usa a linha 1 como cabeçalho automaticamente
+
+for c in contatos:
+    nome = c.get('Nome')
+    fone = str(c.get('Telefone (DDD)')).split('.')[0] # Limpa o número
     
-    response = requests.post(API_URL, json=payload, headers=headers)
-    return response.status_code
-
-# Loop de envio
-for index, row in df_contatos.iterrows():
-    # Personaliza a mensagem
-    msg_personalizada = mensagem_base.replace("{{nome}}", row['Nome'])
-    
-    print(f"Enviando para {row['Nome']}...")
-    status = enviar_mensagem(row['Telefone'], msg_personalizada)
-    
-    if status == 201 or status == 200:
-        print("Sucesso!")
-    else:
-        print(f"Erro no envio: {status}")
+    if nome and fone:
+        msg = mensagem_base.replace("{{nome}}", nome)
+        # Envio para Evolution API
+        requests.post(
+            "https://eudmarly-evolution-api.4eivnx.easypanel.host/message/sendText/WhatsappBroadcast",
+            json={"number": fone, "text": msg},
+            headers={"apikey": os.environ['2769760D38ED-42D2-BF1E-EE417FAAF255']}
+        )
     
     # Delay de segurança entre mensagens (15 segundos)
     time.sleep(15)
