@@ -4,57 +4,63 @@ import requests
 import time
 import os
 
-# 1. Autenticação (O arquivo credentials.json deve estar no seu GitHub)
+# 1. Autenticação
 scopes = ["https://www.googleapis.com/auth/spreadsheets"]
 creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
 client = gspread.authorize(creds)
 
-# 2. Abrir a planilha
-# Substitua pelo nome exato do seu arquivo no Google Sheets
-#spreadsheet = client.open("BroadcastWhatsapp")
-spreadsheet = cliente.open_by_key("1kIo_svj3RHOHjiOQ7hULX-Vp2o4hfvHLRhN_U7xxcD8")
+# 2. Abrir a planilha pelo ID (mais seguro)
+# O ID é aquele código longo na URL da sua planilha
+spreadsheet = client.open_by_key("1kIo_svj3RHOHjiOQ7hULX-Vp2o4hfvHLRhN_U7xxcD8")
 sheet = spreadsheet.get_worksheet(0) 
 
-# 3. Pega a Mensagem (Célula A2)
-mensagem_mestra = sheet.acell('A2').value
+# 3. Pegar a Mensagem (Vamos definir que ela ficará na célula B2 para facilitar)
+# Você escreve a mensagem na B2, e os contatos começam na linha 3
+mensagem_mestra = sheet.acell('B2').value
 
-# 4. Pega os Contatos (Colunas B e C)
-# Lemos todos os registros; o gspread identificará "Nome" e "Telefone (DDD)" como cabeçalhos
-records = sheet.get_all_records()
+# 4. Pegar os Contatos (A partir da linha 3)
+todos_os_valores = sheet.get_all_values()
+# todos_os_valores[2:] pula as duas primeiras linhas (títulos e mensagem)
+contatos = todos_os_valores[2:] 
 
 # Configuração Evolution API
 API_URL = "https://eudmarly-evolution-api.4eivnx.easypanel.host/message/sendText/WhatsappBroadcast"
 API_KEY = os.environ.get('2769760D38ED-42D2-BF1E-EE417FAAF255')
 
-print("Iniciando disparos via Python...")
+print(f"Lida mensagem da célula B2: {mensagem_mestra}")
 
-for row in records:
-    nome = row.get('Nome')
-    telefone_bruto = row.get('Telefone (DDD)')
+for linha in contatos:
+    # Como a coluna A está vazia:
+    # linha[0] é a Coluna A (Vazia)
+    # linha[1] é a Coluna B (Nome)
+    # linha[2] é a Coluna C (Telefone)
     
-    # Limpa o telefone (remove .0, espaços e traços)
-    if telefone_bruto:
-        telefone = "".join(filter(str.isdigit, str(telefone_bruto).split('.')[0]))
+    if len(linha) < 3:
+        continue
         
-        # Só envia se tiver nome e um número de telefone plausível
-        if nome and len(telefone) >= 10:
-            msg_final = mensagem_mestra.replace("{{nome}}", str(nome))
-            
-            payload = {
-                "number": telefone,
-                "text": msg_final,
-                "delay": 1200
-            }
-            headers = {'apikey': API_KEY, 'Content-Type': 'application/json'}
-            
-            print(f"Enviando para {nome} ({telefone})...")
-            try:
-                response = requests.post(API_URL, json=payload, headers=headers)
-                print(f"Status: {response.status_code}")
-            except Exception as e:
-                print(f"Erro na conexão: {e}")
-            
-            # Delay de segurança (15 segundos) para evitar banimento
-            time.sleep(15)
+    nome = linha[1]
+    telefone_bruto = linha[2]
+    
+    # Limpa o telefone
+    telefone = "".join(filter(str.isdigit, str(telefone_bruto).split('.')[0]))
+    
+    if nome and len(telefone) >= 10:
+        msg_final = mensagem_mestra.replace("{{nome}}", str(nome))
+        
+        payload = {
+            "number": telefone,
+            "text": msg_final,
+            "delay": 1200
+        }
+        headers = {'apikey': API_KEY, 'Content-Type': 'application/json'}
+        
+        print(f"Enviando para {nome} ({telefone})...")
+        try:
+            response = requests.post(API_URL, json=payload, headers=headers)
+            print(f"Resultado: {response.status_code}")
+        except Exception as e:
+            print(f"Erro: {e}")
+        
+        time.sleep(15)
 
-print("🚀 Processo concluído com sucesso!")
+print("🚀 Fim do envio!")
