@@ -11,7 +11,8 @@ client = gspread.authorize(creds)
 
 # 2. Abrir a planilha
 # Substitua pelo nome exato do seu arquivo no Google Sheets
-spreadsheet = client.open("BroadcastWhatsapp")
+#spreadsheet = client.open("BroadcastWhatsapp")
+spreadsheet = cliente.open_by_key("1kIo_svj3RHOHjiOQ7hULX-Vp2o4hfvHLRhN_U7xxcD8")
 sheet = spreadsheet.get_worksheet(0) 
 
 # 3. Pega a Mensagem (Célula A2)
