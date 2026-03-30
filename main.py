@@ -28,7 +28,9 @@ print(f"Mensagem carregada: {mensagem_mestra}")
 
 # Configuração Evolution API
 API_URL = "https://eudmarly-evolution-api.4eivnx.easypanel.host/message/sendText/WhatsappBroadcast"
-API_KEY = os.environ.get('2769760D38ED-42D2-BF1E-EE417FAAF255')
+# Remova o os.environ.get e coloque a chave entre aspas
+API_KEY = '2769760D38ED-42D2-BF1E-EE417FAAF255'
+#API_KEY = os.environ.get('2769760D38ED-42D2-BF1E-EE417FAAF255')
 
 # 5. Percorrer os contatos (Começa da linha 2)
 for i, linha in enumerate(dados_brutos[1:], start=2):
