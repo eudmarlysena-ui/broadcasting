@@ -1,20 +1,16 @@
-name: Disparo WhatsApp
+steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
 
-on:
-  push:
-    paths:
-      - 'disparar.txt' # O envio começa quando você edita este arquivo no GitHub
-
-jobs:
-  run-python:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Instalar Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      - run: pip install gspread google-auth requests
-      - name: Rodar Script
+
+      - name: Instalar bibliotecas
+        run: pip install gspread google-auth requests pandas
+
+      - name: Executar Script
         env:
           EVOLUTION_API_KEY: ${{ secrets.EVOLUTION_API_KEY }}
         run: python main.py
