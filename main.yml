@@ -1,16 +1,26 @@
-steps:
-      - name: Checkout código
-        uses: actions/checkout@v3
+name: Broadcasting
 
-      - name: Instalar Python
+on:
+  push:
+    branches: [main]
+
+jobs:
+  send-messages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
-      - name: Instalar bibliotecas
-        run: pip install gspread google-auth requests pandas
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: Executar Script
+      - name: Run broadcast
         env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
           EVOLUTION_API_KEY: ${{ secrets.EVOLUTION_API_KEY }}
         run: python main.py
